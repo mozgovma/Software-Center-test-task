@@ -1,19 +1,7 @@
 <template>
-  <div class="container">
-    <h1>Vehicles</h1>
-    <div class="part-from-header">
-      <button class="button">+</button>
-      <div class="user">
-        <img src="/src/assets/Ellipse 13.png" alt="User Avatar">
-        <span>John Doe</span>
-      </div>
-      <div class="language">
-        <img src="/src/assets/uk.png" alt="English"> En
-      </div>
-    </div>
-  </div>
-  <hr class="thin-line">
+  <Header />
   <div class="controls">
+  <div class="inpt">
     <input
       type="text"
       class="search-input"
@@ -28,6 +16,7 @@
         <option value="3">3</option>
       </select>
     </div>
+  </div>
     <button class="add-vehicle-button">
       <span class="icon">+</span>
       <span>Add Vehicle</span>
@@ -62,6 +51,8 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
+import Header from '../components/Header.vue'; // Убедись, что путь правильный
+
 
 const cars = ref([]);
 const searchQuery = ref('');
@@ -76,6 +67,8 @@ async function fetchData() {
     console.error('Error fetching data:', error);
   }
 }
+
+
 
 onMounted(() => {
   fetchData();
@@ -114,6 +107,10 @@ function prevPage() {
     currentPage.value--;
   }
 }
+
+
+
+
 </script>
 
 <style>
@@ -130,6 +127,11 @@ function prevPage() {
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
 }
+.inpt{
+  display: flex;
+    gap: 40px;
+}
+
 .pagination-controls{
   display: flex;
   align-items: center;
@@ -180,6 +182,7 @@ function prevPage() {
   font-weight: 400;
   line-height: 22px;
   text-align: center;
+  height: 100px;
 }
 
 .model{
@@ -200,7 +203,7 @@ function prevPage() {
 .controls {
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-around;
   padding-top: 20px;
 }
 
