@@ -23,19 +23,9 @@
     </button>
   </div>
   <div class="card-container">
-    <div v-for="car in paginatedCars" :key="car.id" class="card">
-      <img :src="car.placeholder" alt="Car Image" v-if="car.photo">
-      <div class="car-info">
-        <div class="model">{{ car.vehicle_name || 'Unknown Model' }}</div>
-        <div class="vin">VIN: {{ car.vin }}</div>
-      </div>
-      <hr class="thin-line">
-      <div class="footer-card-container">
-        <div>{{car.angles_count}}/30</div>
-        <div>3 days left</div>
-      </div>
-    </div>
+    <CarCard v-for="car in paginatedCars" :key="car.id" :car="car" />
   </div>
+  <div v-if="error">{{ error }}</div>
   <div class="pagination-controls">
     <button class="pagination-button"  @click="prevPage" :disabled="currentPage === 1"><</button>
     <span class="pagination-info">  {{ currentPage }} / {{ totalPages }} </span>
@@ -52,23 +42,23 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import Header from '../components/Header.vue'; // Убедись, что путь правильный
-
+import CarCard from '../components/CarCard.vue'
 
 const cars = ref([]);
 const searchQuery = ref('');
 const vehiclesPerPage = ref(6); 
 const currentPage = ref(1); 
+const error = ref(null);
 
 async function fetchData() {
   try {
     const response = await axios.get('https://api.caiman-app.de/api/cars-test');
     cars.value = response.data.data;
-  } catch (error) {
-    console.error('Error fetching data:', error);
+  } catch (err) {
+    error.value = "Не удалось загрузить данные.";
+    console.error('Error fetching data:', err);
   }
 }
-
-
 
 onMounted(() => {
   fetchData();
@@ -80,8 +70,8 @@ watch(vehiclesPerPage, (newValue) => {
   currentPage.value = 1;
 });
 
-
 const filteredCars = computed(() => {
+  if (!searchQuery.value) return cars.value;
   const query = searchQuery.value.toLowerCase();
   return cars.value.filter(car => car.vin.toLowerCase().includes(query));
 });
@@ -96,6 +86,7 @@ const paginatedCars = computed(() => {
   return filteredCars.value.slice(start, end);
 });
 
+
 function nextPage() {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
@@ -107,10 +98,6 @@ function prevPage() {
     currentPage.value--;
   }
 }
-
-
-
-
 </script>
 
 <style>
@@ -153,25 +140,7 @@ function prevPage() {
   line-height: 22px;
   text-align: center;
 }
-.footer-card-container{
-  display: flex;
-  justify-content: space-between;
-  font-family: DM Sans;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 22px;
-  text-align: center;
-}
-.car-details{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-family: DM Sans;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 16px;
-  text-align: right;
-}
+
 .container {
   display: flex;
   justify-content: space-between;
@@ -185,21 +154,6 @@ function prevPage() {
   height: 100px;
 }
 
-.model{
-  font-family: DM Sans;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 22px;
-  text-align: left;
-}
-.vin{
-  font-family: DM Sans;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 20px;
-  letter-spacing: 0.30000001192092896px;
-  text-align: left;
-}
 .controls {
   display: flex;
   align-items: center;
@@ -215,13 +169,6 @@ h1 {
   display: flex;
   align-items: center;
   gap: 20px;
-}
-
-.thin-line {
-  border: none;
-  height: 1px;
-  background-color: rgba(228, 228, 228, 1);
-  width: 100%;
 }
 
 .button {
@@ -304,53 +251,17 @@ h1 {
   background-color: #d9433e;
 }
 
+.pagination-button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
 .card-container {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   padding: 20px;
   justify-content: center;
-}
-
-.card {
-  width: 350px;
-  height: 330px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-}
-
-.card img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.car-info {
-  margin: 10px 0 !important;
-}
-
-.car-info .model {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.car-info .vin {
-  font-size: 14px;
-  color: #666;
-}
-
-.thin-line {
-  border: none;
-  height: 1px;
-  background-color: #ddd;
-  width: 100%;
 }
 </style>
   
